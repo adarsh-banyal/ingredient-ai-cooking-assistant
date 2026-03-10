@@ -1,25 +1,25 @@
 from ultralytics import YOLO
-import cv2
+from recipe_engine import SUPPORTED_INGREDIENTS
 
 
 class IngredientDetector:
 
     def __init__(self):
-        # load pretrained YOLO model
         self.model = YOLO("yolov8n.pt")
 
     def detect(self, image_path):
 
         results = self.model(image_path)
 
-        detected_objects = []
+        detected = []
 
         for result in results:
             for box in result.boxes:
 
                 class_id = int(box.cls[0])
-                label = self.model.names[class_id]
+                label = self.model.names[class_id].lower()
 
-                detected_objects.append(label)
+                if label in SUPPORTED_INGREDIENTS:
+                    detected.append(label)
 
-        return list(set(detected_objects))
+        return list(set(detected))
