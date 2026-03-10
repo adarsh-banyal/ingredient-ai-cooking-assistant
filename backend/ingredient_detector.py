@@ -1,5 +1,5 @@
 from ultralytics import YOLO
-from recipe_engine import SUPPORTED_INGREDIENTS
+from backend.recipe_engine import SUPPORTED_INGREDIENTS
 
 
 class IngredientDetector:
