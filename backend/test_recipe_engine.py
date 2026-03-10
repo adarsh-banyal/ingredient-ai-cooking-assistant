@@ -1,9 +1,7 @@
 from recipe_engine import RecipeEngine
 
-engine = RecipeEngine(r"E:\repo\ingredient-ai-app\dataset\recipes.csv")
+engine = RecipeEngine(r"E:\repo\ingredient-ai-app\dataset\RAW_recipes.csv")
 
-ingredients = ["potato", "tomato", "onion"]
+ingredients = ["tomato","onion","potato"]
 
-recipes = engine.recommend(ingredients)
-
-print(recipes)
+print(engine.recommend(ingredients))
