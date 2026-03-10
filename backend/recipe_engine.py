@@ -46,9 +46,11 @@ class RecipeEngine:
 
             matches = user_set.intersection(recipe_ingredients)
 
-            score = len(matches) / len(recipe_ingredients)
+            union = user_set.union(recipe_ingredients)
 
-            if score > 0.3:
+            score = len(matches) / len(union)
+
+            if score > 0.2:
                 results.append((row["name"], score))
 
         results.sort(key=lambda x: x[1], reverse=True)
