@@ -5,3 +5,4 @@ ultralytics
 opencv-python
 sentence-transformers
 scikit-learn
+faiss-cpu

@@ -2,8 +2,9 @@ import pandas as pd
 import ast
 import os
 import numpy as np
+import faiss
+
 from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
 
 
 class VectorRecipeEngine:
@@ -19,20 +20,27 @@ class VectorRecipeEngine:
             lambda x: " ".join([i.lower().strip() for i in x])
         )
 
-        self.recipes = df
+        # reduce dataset size for faster experimentation
+        df = df.sample(30000, random_state=42)
 
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.recipes = df.reset_index(drop=True)
 
-        cache_file = "../embeddings/recipe_vectors.npy"
+        self.model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
 
-        if os.path.exists(cache_file):
+        vector_cache = "../embeddings/recipe_vectors.npy"
+        index_cache = "../embeddings/faiss_index.bin"
+
+        os.makedirs("../embeddings", exist_ok=True)
+
+        # load or generate embeddings
+        if os.path.exists(vector_cache):
 
             print("Loading cached embeddings...")
-            self.recipe_vectors = np.load(cache_file)
+            self.recipe_vectors = np.load(vector_cache)
 
         else:
 
-            print("Generating recipe embeddings...")
+            print("Generating embeddings...")
 
             self.recipe_vectors = self.model.encode(
                 self.recipes["ingredients"].tolist(),
@@ -41,24 +49,39 @@ class VectorRecipeEngine:
                 convert_to_numpy=True
             )
 
-            os.makedirs("../embeddings", exist_ok=True)
-            np.save(cache_file, self.recipe_vectors)
+            np.save(vector_cache, self.recipe_vectors)
 
-    def recommend(self, ingredients):
+        dimension = self.recipe_vectors.shape[1]
+
+        # load or build FAISS index
+        if os.path.exists(index_cache):
+
+            print("Loading FAISS index...")
+            self.index = faiss.read_index(index_cache)
+
+        else:
+
+            print("Building FAISS index...")
+
+            self.index = faiss.IndexFlatL2(dimension)
+            self.index.add(self.recipe_vectors)
+
+            faiss.write_index(self.index, index_cache)
+
+    def recommend(self, ingredients, top_k=10):
 
         query = " ".join(ingredients)
 
         query_vector = self.model.encode([query])
 
-        similarities = cosine_similarity(query_vector, self.recipe_vectors)[0]
-
-        top_indices = similarities.argsort()[-10:][::-1]
+        distances, indices = self.index.search(query_vector, top_k)
 
         results = []
 
-        for idx in top_indices:
-            results.append(
-                (self.recipes.iloc[idx]["name"], float(similarities[idx]))
-            )
+        for idx, score in zip(indices[0], distances[0]):
+
+            recipe_name = self.recipes.iloc[idx]["name"]
+
+            results.append((recipe_name, float(score)))
 
         return results
