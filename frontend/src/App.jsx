@@ -11,6 +11,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [activeIngredients, setActiveIngredients] = useState([]);
+  const [activeFilters, setActiveFilters] = useState([]);
   const [error, setError] = useState(null);
 
   const handleImageSelect = (selectedFile) => {
@@ -54,14 +55,17 @@ function App() {
     }
   };
 
-  const fetchRecipesByIngredients = async (ingredients) => {
+  const fetchRecipesByIngredients = async (ingredients, filters = activeFilters) => {
     setIsLoading(true);
     setError(null);
     try {
       const response = await fetch('http://localhost:8000/search-recipes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ingredients }),
+        body: JSON.stringify({
+          ingredients,
+          filters: filters.length > 0 ? filters : null
+        }),
       });
 
       if (!response.ok) {
@@ -85,13 +89,22 @@ function App() {
   const handleAddIngredient = (ingredient) => {
     const newIngredients = [...activeIngredients, ingredient.toLowerCase().trim()];
     setActiveIngredients(newIngredients);
-    fetchRecipesByIngredients(newIngredients);
+    fetchRecipesByIngredients(newIngredients, activeFilters);
   };
 
   const handleRemoveIngredient = (ingredient) => {
     const newIngredients = activeIngredients.filter(i => i !== ingredient);
     setActiveIngredients(newIngredients);
-    fetchRecipesByIngredients(newIngredients);
+    fetchRecipesByIngredients(newIngredients, activeFilters);
+  };
+
+  const handleFilterToggle = (filter) => {
+    const newFilters = activeFilters.includes(filter)
+      ? activeFilters.filter(f => f !== filter)
+      : [...activeFilters, filter];
+
+    setActiveFilters(newFilters);
+    fetchRecipesByIngredients(activeIngredients, newFilters);
   };
 
   const handleReset = () => {
@@ -99,6 +112,7 @@ function App() {
     setPreviewUrl(null);
     setResults(null);
     setActiveIngredients([]);
+    setActiveFilters([]);
     setError(null);
   };
 
@@ -202,6 +216,8 @@ function App() {
                   activeIngredients={activeIngredients}
                   onAddIngredient={handleAddIngredient}
                   onRemoveIngredient={handleRemoveIngredient}
+                  activeFilters={activeFilters}
+                  onFilterToggle={handleFilterToggle}
                   onReset={handleReset}
                   previewUrl={previewUrl}
                 />

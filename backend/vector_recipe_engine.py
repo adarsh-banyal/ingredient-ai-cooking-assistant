@@ -12,12 +12,13 @@ class VectorRecipeEngine:
     def __init__(self, dataset_path):
 
         df = pd.read_csv(dataset_path)
-        # Include steps in the dataframe
-        df = df[["name", "ingredients", "steps"]]
+        # Include steps and tags in the dataframe
+        df = df[["name", "ingredients", "steps", "tags"]]
 
         # Parse string lists into actual Python lists
         df["ingredients"] = df["ingredients"].apply(ast.literal_eval)
         df["steps"] = df["steps"].apply(ast.literal_eval)
+        df["tags"] = df["tags"].apply(ast.literal_eval)
 
         # Create the searchable string for the vector model
         df["searchable_ingredients"] = df["ingredients"].apply(
@@ -76,26 +77,39 @@ class VectorRecipeEngine:
 
             faiss.write_index(self.index, index_cache)
 
-    def recommend(self, ingredients, top_k=10):
+    def recommend(self, ingredients, top_k=10, filters=None):
 
         query = " ".join(ingredients)
 
         query_vector = self.model.encode([query])
 
-        distances, indices = self.index.search(query_vector, top_k)
+        # Search for a larger set of candidates if filters are applied to ensure we find enough matches
+        search_k = top_k * 50 if filters else top_k
+        distances, indices = self.index.search(query_vector, search_k)
 
         results = []
 
         for idx, score in zip(indices[0], distances[0]):
             
+            if len(results) >= top_k:
+                break
+
             row = self.recipes.iloc[idx]
+            
+            # Apply filters if any
+            if filters:
+                recipe_tags = row["tags"]
+                # A recipe matches if it contains ALL selected filters in its tags
+                if not all(f.lower() in recipe_tags for f in filters):
+                    continue
             
             # Return rich dict with all details
             results.append({
                 "name": row["name"],
                 "score": float(score),
                 "ingredients": row["ingredients"],
-                "steps": row["steps"]
+                "steps": row["steps"],
+                "tags": row["tags"]
             })
 
         return results

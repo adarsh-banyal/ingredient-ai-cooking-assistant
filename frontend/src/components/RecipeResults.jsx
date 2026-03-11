@@ -74,7 +74,7 @@ const RecipeCard = ({ recipe, itemVariants }) => {
     );
 };
 
-const RecipeResults = ({ data, activeIngredients, onAddIngredient, onRemoveIngredient, onReset, previewUrl }) => {
+const RecipeResults = ({ data, activeIngredients, onAddIngredient, onRemoveIngredient, activeFilters, onFilterToggle, onReset, previewUrl }) => {
     const { recipes = [] } = data;
     const [newIngredient, setNewIngredient] = useState("");
 
@@ -162,6 +162,26 @@ const RecipeResults = ({ data, activeIngredients, onAddIngredient, onRemoveIngre
                             />
                             <button type="submit" className="add-ing-btn">Add</button>
                         </form>
+                    </div>
+
+                    <div className="filters-section">
+                        <h3 className="section-title">
+                            <ChefHat size={20} color="var(--color-accent-primary)" />
+                            Dietary Filters
+                        </h3>
+                        <div className="filters-list">
+                            {['Vegan', 'Vegetarian', 'Gluten-Free', 'Dairy-Free'].map(filter => (
+                                <label key={filter} className={`filter-chip ${activeFilters.includes(filter) ? 'active' : ''}`}>
+                                    <input
+                                        type="checkbox"
+                                        checked={activeFilters.includes(filter)}
+                                        onChange={() => onFilterToggle(filter)}
+                                        className="hidden-checkbox"
+                                    />
+                                    {filter}
+                                </label>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </motion.div>
