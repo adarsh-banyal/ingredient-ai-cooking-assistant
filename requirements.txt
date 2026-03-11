@@ -3,3 +3,5 @@ uvicorn
 pandas
 ultralytics
 opencv-python
+sentence-transformers
+scikit-learn
