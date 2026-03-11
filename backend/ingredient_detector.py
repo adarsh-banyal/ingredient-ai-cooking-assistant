@@ -1,5 +1,4 @@
 from ultralytics import YOLO
-from backend.recipe_engine import SUPPORTED_INGREDIENTS
 
 
 class IngredientDetector:
@@ -19,7 +18,7 @@ class IngredientDetector:
                 class_id = int(box.cls[0])
                 label = self.model.names[class_id].lower()
 
-                if label in SUPPORTED_INGREDIENTS:
-                    detected.append(label)
+                # Accept all detected items
+                detected.append(label)
 
         return list(set(detected))

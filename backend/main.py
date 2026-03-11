@@ -2,14 +2,23 @@ from fastapi import FastAPI, UploadFile, File
 import shutil
 import os
 
+from fastapi.middleware.cors import CORSMiddleware
 from backend.ingredient_detector import IngredientDetector
-from backend.recipe_engine import RecipeEngine
+from backend.vector_recipe_engine import VectorRecipeEngine
 
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 detector = IngredientDetector()
-engine = RecipeEngine(r"E:\repo\ingredient-ai-app\dataset\RAW_recipes.csv")
+engine = VectorRecipeEngine(r"E:\repo\ingredient-ai-app\dataset\RAW_recipes.csv")
 
 
 UPLOAD_PATH = r"E:\repo\ingredient-ai-app\fruits.jpg"

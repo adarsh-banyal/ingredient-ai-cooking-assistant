@@ -12,38 +12,46 @@ class VectorRecipeEngine:
     def __init__(self, dataset_path):
 
         df = pd.read_csv(dataset_path)
-        df = df[["name", "ingredients"]]
+        # Include steps in the dataframe
+        df = df[["name", "ingredients", "steps"]]
 
+        # Parse string lists into actual Python lists
         df["ingredients"] = df["ingredients"].apply(ast.literal_eval)
+        df["steps"] = df["steps"].apply(ast.literal_eval)
 
-        df["ingredients"] = df["ingredients"].apply(
+        # Create the searchable string for the vector model
+        df["searchable_ingredients"] = df["ingredients"].apply(
             lambda x: " ".join([i.lower().strip() for i in x])
         )
 
-        # reduce dataset size for faster experimentation
+        # Sampling dataset to 30,000 for fast RAM loading and embedding generation
         df = df.sample(30000, random_state=42)
 
         self.recipes = df.reset_index(drop=True)
 
         self.model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
 
-        vector_cache = "../embeddings/recipe_vectors.npy"
-        index_cache = "../embeddings/faiss_index.bin"
+        # Use absolute paths so the cache is consistently saved/loaded regardless of cwd
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        embeddings_dir = os.path.join(base_dir, "embeddings")
+        
+        vector_cache = os.path.join(embeddings_dir, "recipe_vectors_v2.npy")
+        index_cache = os.path.join(embeddings_dir, "faiss_index_v2.bin")
 
-        os.makedirs("../embeddings", exist_ok=True)
+        os.makedirs(embeddings_dir, exist_ok=True)
 
         # load or generate embeddings
         if os.path.exists(vector_cache):
 
-            print("Loading cached embeddings...")
+            print("Loading full cached embeddings...")
             self.recipe_vectors = np.load(vector_cache)
 
         else:
 
-            print("Generating embeddings...")
+            print("Generating full embeddings... This might take a moment!")
 
             self.recipe_vectors = self.model.encode(
-                self.recipes["ingredients"].tolist(),
+                self.recipes["searchable_ingredients"].tolist(),
                 batch_size=256,
                 show_progress_bar=True,
                 convert_to_numpy=True
@@ -56,12 +64,12 @@ class VectorRecipeEngine:
         # load or build FAISS index
         if os.path.exists(index_cache):
 
-            print("Loading FAISS index...")
+            print("Loading full FAISS index...")
             self.index = faiss.read_index(index_cache)
 
         else:
 
-            print("Building FAISS index...")
+            print("Building full FAISS index...")
 
             self.index = faiss.IndexFlatL2(dimension)
             self.index.add(self.recipe_vectors)
@@ -79,9 +87,15 @@ class VectorRecipeEngine:
         results = []
 
         for idx, score in zip(indices[0], distances[0]):
-
-            recipe_name = self.recipes.iloc[idx]["name"]
-
-            results.append((recipe_name, float(score)))
+            
+            row = self.recipes.iloc[idx]
+            
+            # Return rich dict with all details
+            results.append({
+                "name": row["name"],
+                "score": float(score),
+                "ingredients": row["ingredients"],
+                "steps": row["steps"]
+            })
 
         return results
