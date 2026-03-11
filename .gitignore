@@ -7,3 +7,5 @@ myenv/
 dataset/
 embeddings/
 *.npy
+resume_extracted.txt
+*.pdf
