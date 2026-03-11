@@ -28,25 +28,35 @@ UPLOAD_PATH = r"E:\repo\ingredient-ai-app\fruits.jpg"
 
 @app.post("/detect-recipes")
 async def detect_recipes(
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File(...),
     filters: Optional[List[str]] = Query(None)
 ):
+    all_detections = {}
 
-    # save uploaded image temporarily
-    with open(UPLOAD_PATH, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    for file in files:
+        # save uploaded image temporarily
+        with open(UPLOAD_PATH, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
 
-    # detect ingredients
-    detections = detector.detect(UPLOAD_PATH)
-    
-    # Extract just the labels for the recipe engine
-    ingredient_labels = [d["label"] for d in detections]
+        # detect ingredients for this image
+        detections = detector.detect(UPLOAD_PATH)
+        
+        # Aggregate detections, keeping highest confidence for each label
+        for d in detections:
+            label = d["label"]
+            conf = d["confidence"]
+            if label not in all_detections or conf > all_detections[label]["confidence"]:
+                all_detections[label] = d
+
+    # Convert aggregated detections back to list
+    final_detections = list(all_detections.values())
+    ingredient_labels = [d["label"] for d in final_detections]
 
     # get recipes
     recipes = engine.recommend(ingredient_labels, filters=filters)
 
     return {
-        "detected_ingredients": detections,
+        "detected_ingredients": final_detections,
         "recipes": recipes
     }
 

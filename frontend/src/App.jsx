@@ -7,8 +7,8 @@ import CookingMode from './components/CookingMode';
 import './App.css';
 
 function App() {
-  const [file, setFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [activeIngredients, setActiveIngredients] = useState([]);
@@ -16,21 +16,25 @@ function App() {
   const [cookingRecipe, setCookingRecipe] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleImageSelect = (selectedFile) => {
-    setFile(selectedFile);
-    setPreviewUrl(URL.createObjectURL(selectedFile));
+  const handleImageSelect = (selectedFiles) => {
+    // Handle both single file (from previous logic) and multiple files
+    const newFiles = Array.isArray(selectedFiles) ? selectedFiles : [selectedFiles];
+    setFiles(newFiles);
+    setPreviewUrls(newFiles.map(f => URL.createObjectURL(f)));
     setResults(null);
     setError(null);
   };
 
   const handleProcessImage = async () => {
-    if (!file) return;
+    if (files.length === 0) return;
 
     setIsLoading(true);
     setError(null);
 
     const formData = new FormData();
-    formData.append('file', file);
+    files.forEach(f => {
+      formData.append('files', f);
+    });
 
     try {
       const response = await fetch('http://localhost:8000/detect-recipes', {
@@ -44,7 +48,7 @@ function App() {
 
       const data = await response.json();
       setResults(data);
-      // Initialize active ingredients from detection (handling both old string and new object formats)
+      // Initialize active ingredients from detection
       const initialIngredients = (data.detected_ingredients || []).map(item =>
         typeof item === 'string' ? item : item.label
       );
@@ -110,8 +114,8 @@ function App() {
   };
 
   const handleReset = () => {
-    setFile(null);
-    setPreviewUrl(null);
+    setFiles([]);
+    setPreviewUrls([]);
     setResults(null);
     setActiveIngredients([]);
     setActiveFilters([]);
@@ -173,9 +177,9 @@ function App() {
               >
                 <ImageUploader
                   onImageSelect={handleImageSelect}
-                  previewUrl={previewUrl}
+                  previewUrls={previewUrls}
                   onProcess={handleProcessImage}
-                  hasFile={!!file}
+                  hasFile={files.length > 0}
                 />
               </motion.div>
             )}
@@ -223,7 +227,7 @@ function App() {
                   onFilterToggle={handleFilterToggle}
                   onCook={setCookingRecipe}
                   onReset={handleReset}
-                  previewUrl={previewUrl}
+                  previewUrl={previewUrls[0]}
                 />
               </motion.div>
             )}

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { UploadCloud, Camera, ArrowRight } from 'lucide-react';
 import './ImageUploader.css';
 
-const ImageUploader = ({ onImageSelect, previewUrl, onProcess, hasFile }) => {
+const ImageUploader = ({ onImageSelect, previewUrls, onProcess, hasFile }) => {
     const fileInputRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
 
@@ -25,17 +25,17 @@ const ImageUploader = ({ onImageSelect, previewUrl, onProcess, hasFile }) => {
         e.preventDefault();
         setIsDragging(false);
 
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            const file = e.dataTransfer.files[0];
-            if (file.type.startsWith('image/')) {
-                onImageSelect(file);
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const selectedFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            if (selectedFiles.length > 0) {
+                onImageSelect(selectedFiles);
             }
         }
     };
 
     const handleFileChange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            onImageSelect(e.target.files[0]);
+        if (e.target.files && e.target.files.length > 0) {
+            onImageSelect(Array.from(e.target.files));
         }
     };
 
@@ -56,6 +56,7 @@ const ImageUploader = ({ onImageSelect, previewUrl, onProcess, hasFile }) => {
                         ref={fileInputRef}
                         onChange={handleFileChange}
                         accept="image/*"
+                        multiple
                         className="hidden-input"
                     />
                     <motion.div
@@ -65,7 +66,7 @@ const ImageUploader = ({ onImageSelect, previewUrl, onProcess, hasFile }) => {
                         <UploadCloud size={64} className="upload-icon" />
                     </motion.div>
                     <div className="upload-text">Click to upload or drag & drop</div>
-                    <div className="upload-subtext">JPG, PNG, WEBP (Max 5MB)</div>
+                    <div className="upload-subtext">Support multiple images (Max 5MB each)</div>
                 </motion.div>
             ) : (
                 <div className="preview-container" onClick={handleClick}>
@@ -74,13 +75,19 @@ const ImageUploader = ({ onImageSelect, previewUrl, onProcess, hasFile }) => {
                         ref={fileInputRef}
                         onChange={handleFileChange}
                         accept="image/*"
+                        multiple
                         className="hidden-input"
                     />
-                    <img src={previewUrl} alt="Ingredients Preview" className="preview-image" />
+                    <div className="preview-image-wrapper">
+                        <img src={previewUrls[0]} alt="Ingredients Preview" className="preview-image" />
+                        {previewUrls.length > 1 && (
+                            <div className="image-count-badge">+{previewUrls.length - 1} more</div>
+                        )}
+                    </div>
                     <div className="preview-overlay">
                         <button className="change-btn">
                             <Camera size={18} style={{ marginRight: '8px', display: 'inline' }} />
-                            Change Photo
+                            Add/Change Photos ({previewUrls.length})
                         </button>
                     </div>
                 </div>
