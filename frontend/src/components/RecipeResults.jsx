@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, RefreshCw, ChefHat, Target, ChevronDown, ChevronUp, BookOpen, List, AlertCircle } from 'lucide-react';
 import './RecipeResults.css';
 
-const RecipeCard = ({ recipe, itemVariants }) => {
+const RecipeCard = ({ recipe, itemVariants, onCook }) => {
     const { name, score, ingredients = [], steps = [], missing_ingredients = [] } = recipe;
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -33,6 +33,12 @@ const RecipeCard = ({ recipe, itemVariants }) => {
             )}
 
             <div className="recipe-actions">
+                <button
+                    className="play-btn"
+                    onClick={() => onCook(recipe)}
+                >
+                    Start Cooking
+                </button>
                 <button
                     className="expand-btn"
                     onClick={() => setIsExpanded(!isExpanded)}
@@ -95,7 +101,7 @@ const RecipeCard = ({ recipe, itemVariants }) => {
     );
 };
 
-const RecipeResults = ({ data, activeIngredients, onAddIngredient, onRemoveIngredient, activeFilters, onFilterToggle, onReset, previewUrl }) => {
+const RecipeResults = ({ data, activeIngredients, onAddIngredient, onRemoveIngredient, activeFilters, onFilterToggle, onCook, onReset, previewUrl }) => {
     const { recipes = [] } = data;
     const [newIngredient, setNewIngredient] = useState("");
 
@@ -221,7 +227,7 @@ const RecipeResults = ({ data, activeIngredients, onAddIngredient, onRemoveIngre
                         animate="visible"
                     >
                         {recipes.map((recipe, idx) => (
-                            <RecipeCard key={idx} recipe={recipe} itemVariants={itemVariants} />
+                            <RecipeCard key={idx} recipe={recipe} itemVariants={itemVariants} onCook={onCook} />
                         ))}
                     </motion.div>
                 ) : (

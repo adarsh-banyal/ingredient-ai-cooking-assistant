@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, ChefHat } from 'lucide-react';
 import ImageUploader from './components/ImageUploader';
 import RecipeResults from './components/RecipeResults';
+import CookingMode from './components/CookingMode';
 import './App.css';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
   const [results, setResults] = useState(null);
   const [activeIngredients, setActiveIngredients] = useState([]);
   const [activeFilters, setActiveFilters] = useState([]);
+  const [cookingRecipe, setCookingRecipe] = useState(null);
   const [error, setError] = useState(null);
 
   const handleImageSelect = (selectedFile) => {
@@ -113,6 +115,7 @@ function App() {
     setResults(null);
     setActiveIngredients([]);
     setActiveFilters([]);
+    setCookingRecipe(null);
     setError(null);
   };
 
@@ -218,6 +221,7 @@ function App() {
                   onRemoveIngredient={handleRemoveIngredient}
                   activeFilters={activeFilters}
                   onFilterToggle={handleFilterToggle}
+                  onCook={setCookingRecipe}
                   onReset={handleReset}
                   previewUrl={previewUrl}
                 />
@@ -225,6 +229,15 @@ function App() {
             )}
           </AnimatePresence>
         </main>
+
+        <AnimatePresence>
+          {cookingRecipe && (
+            <CookingMode
+              recipe={cookingRecipe}
+              onClose={() => setCookingRecipe(null)}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </>
   );
