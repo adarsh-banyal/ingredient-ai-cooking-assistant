@@ -1,5 +1,7 @@
 import pandas as pd
 import ast
+import os
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -19,14 +21,28 @@ class VectorRecipeEngine:
 
         self.recipes = df
 
-        # load embedding model
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
-        # create embeddings for recipes
-        self.recipe_vectors = self.model.encode(
-            self.recipes["ingredients"].tolist(),
-            show_progress_bar=True
-        )
+        cache_file = "../embeddings/recipe_vectors.npy"
+
+        if os.path.exists(cache_file):
+
+            print("Loading cached embeddings...")
+            self.recipe_vectors = np.load(cache_file)
+
+        else:
+
+            print("Generating recipe embeddings...")
+
+            self.recipe_vectors = self.model.encode(
+                self.recipes["ingredients"].tolist(),
+                batch_size=256,
+                show_progress_bar=True,
+                convert_to_numpy=True
+            )
+
+            os.makedirs("../embeddings", exist_ok=True)
+            np.save(cache_file, self.recipe_vectors)
 
     def recommend(self, ingredients):
 
