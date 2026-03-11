@@ -74,8 +74,17 @@ const RecipeCard = ({ recipe, itemVariants }) => {
     );
 };
 
-const RecipeResults = ({ data, onReset, previewUrl }) => {
-    const { detected_ingredients = [], recipes = [] } = data;
+const RecipeResults = ({ data, activeIngredients, onAddIngredient, onRemoveIngredient, onReset, previewUrl }) => {
+    const { recipes = [] } = data;
+    const [newIngredient, setNewIngredient] = useState("");
+
+    const handleAdd = (e) => {
+        e.preventDefault();
+        if (newIngredient.trim()) {
+            onAddIngredient(newIngredient);
+            setNewIngredient("");
+        }
+    };
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -113,25 +122,46 @@ const RecipeResults = ({ data, onReset, previewUrl }) => {
                             Detected Ingredients
                         </h3>
 
-                        {detected_ingredients.length > 0 ? (
+                        {activeIngredients.length > 0 ? (
                             <div className="ingredients-list">
-                                {detected_ingredients.map((ing, idx) => (
-                                    <motion.span
-                                        key={idx}
-                                        className="ingredient-pill"
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: idx * 0.05 }}
-                                    >
-                                        {ing}
-                                    </motion.span>
-                                ))}
+                                <AnimatePresence>
+                                    {activeIngredients.map((ing, idx) => (
+                                        <motion.span
+                                            key={ing}
+                                            className="ingredient-pill editable"
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8 }}
+                                            transition={{ delay: idx * 0.05 }}
+                                        >
+                                            {ing}
+                                            <button
+                                                className="remove-ing-btn"
+                                                onClick={() => onRemoveIngredient(ing)}
+                                                aria-label={`Remove ${ing}`}
+                                            >
+                                                ×
+                                            </button>
+                                        </motion.span>
+                                    ))}
+                                </AnimatePresence>
                             </div>
                         ) : (
-                            <p style={{ color: 'var(--color-text-muted)' }}>
-                                Could not confidently detect any ingredients in this photo.
+                            <p style={{ color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+                                No ingredients detected or added.
                             </p>
                         )}
+
+                        <form onSubmit={handleAdd} className="add-ingredient-form">
+                            <input
+                                type="text"
+                                value={newIngredient}
+                                onChange={(e) => setNewIngredient(e.target.value)}
+                                placeholder="Add an ingredient..."
+                                className="ingredient-input"
+                            />
+                            <button type="submit" className="add-ing-btn">Add</button>
+                        </form>
                     </div>
                 </div>
             </motion.div>

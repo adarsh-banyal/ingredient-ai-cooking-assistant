@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
+from pydantic import BaseModel
 import shutil
 import os
 
@@ -32,12 +33,26 @@ async def detect_recipes(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     # detect ingredients
-    ingredients = detector.detect(UPLOAD_PATH)
+    detections = detector.detect(UPLOAD_PATH)
+    
+    # Extract just the labels for the recipe engine
+    ingredient_labels = [d["label"] for d in detections]
 
     # get recipes
-    recipes = engine.recommend(ingredients)
+    recipes = engine.recommend(ingredient_labels)
 
     return {
-        "detected_ingredients": ingredients,
+        "detected_ingredients": detections,
+        "recipes": recipes
+    }
+
+class IngredientRequest(BaseModel):
+    ingredients: list[str]
+
+@app.post("/search-recipes")
+async def search_recipes(req: IngredientRequest):
+    # get recipes directly from the provided ingredient list
+    recipes = engine.recommend(req.ingredients)
+    return {
         "recipes": recipes
     }

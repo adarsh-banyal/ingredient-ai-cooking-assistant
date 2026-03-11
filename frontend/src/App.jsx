@@ -10,12 +10,13 @@ function App() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(null);
+  const [activeIngredients, setActiveIngredients] = useState([]);
   const [error, setError] = useState(null);
 
   const handleImageSelect = (selectedFile) => {
     setFile(selectedFile);
     setPreviewUrl(URL.createObjectURL(selectedFile));
-    setResults(null); 
+    setResults(null);
     setError(null);
   };
 
@@ -40,6 +41,11 @@ function App() {
 
       const data = await response.json();
       setResults(data);
+      // Initialize active ingredients from detection (handling both old string and new object formats)
+      const initialIngredients = (data.detected_ingredients || []).map(item =>
+        typeof item === 'string' ? item : item.label
+      );
+      setActiveIngredients(initialIngredients);
     } catch (err) {
       console.error(err);
       setError(err.message || 'An unexpected error occurred');
@@ -48,37 +54,78 @@ function App() {
     }
   };
 
+  const fetchRecipesByIngredients = async (ingredients) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('http://localhost:8000/search-recipes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to search recipes.');
+      }
+
+      const data = await response.json();
+      // Keep the existing detected_ingredients in results, just update recipes
+      setResults(prev => ({
+        ...prev,
+        recipes: data.recipes
+      }));
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'An unexpected error occurred during search.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddIngredient = (ingredient) => {
+    const newIngredients = [...activeIngredients, ingredient.toLowerCase().trim()];
+    setActiveIngredients(newIngredients);
+    fetchRecipesByIngredients(newIngredients);
+  };
+
+  const handleRemoveIngredient = (ingredient) => {
+    const newIngredients = activeIngredients.filter(i => i !== ingredient);
+    setActiveIngredients(newIngredients);
+    fetchRecipesByIngredients(newIngredients);
+  };
+
   const handleReset = () => {
     setFile(null);
     setPreviewUrl(null);
     setResults(null);
+    setActiveIngredients([]);
     setError(null);
   };
 
   return (
     <>
       <div className="bg-gradient-mesh"></div>
-      
+
       <div className="app-container">
         <header className="header">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="flex-center"
             style={{ marginBottom: '1rem' }}
           >
-            <div style={{ 
-              background: 'var(--color-accent-gradient)', 
-              padding: '1rem', 
+            <div style={{
+              background: 'var(--color-accent-gradient)',
+              padding: '1rem',
               borderRadius: 'var(--radius-lg)',
               boxShadow: 'var(--shadow-glow)'
             }}>
               <ChefHat size={32} color="white" />
             </div>
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             className="title text-gradient"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -86,8 +133,8 @@ function App() {
           >
             Recipe AI
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             className="subtitle"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -107,8 +154,8 @@ function App() {
                 exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <ImageUploader 
-                  onImageSelect={handleImageSelect} 
+                <ImageUploader
+                  onImageSelect={handleImageSelect}
                   previewUrl={previewUrl}
                   onProcess={handleProcessImage}
                   hasFile={!!file}
@@ -150,10 +197,13 @@ function App() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <RecipeResults 
-                  data={results} 
-                  onReset={handleReset} 
-                  previewUrl={previewUrl} 
+                <RecipeResults
+                  data={results}
+                  activeIngredients={activeIngredients}
+                  onAddIngredient={handleAddIngredient}
+                  onRemoveIngredient={handleRemoveIngredient}
+                  onReset={handleReset}
+                  previewUrl={previewUrl}
                 />
               </motion.div>
             )}

@@ -1,0 +1,50 @@
+Recent 1 Year
+[Month, Year] – [Month, Year]
+[Month, Year] – [Month, Year]ADARSH BANYAL
+adarsh.banyal.1@gmail.com   |  +91 8894615869  |  linkedin.com/in/adarshbanyal   |  github.com/adarshbanyal
+PROFESSIONAL SUMMARY
+Results-driven Backend Engineer with a strong foundation in Python, specializing in architecting scalable, AI-
+powered web applications and robust RESTful APIs. Adept at leveraging modern frameworks like FastAPI and
+integrating complex third-party tools to automate workflows. Proven ability to design efficient cross-database
+systems, deploy intelligent data pipelines, and deliver high-impact engineering solutions that drive business
+efficiency.
+EXPERIENCE
+Backend Engineer | Tech Bharat AI
+Project: Cranfield Group (AI-Powered ATS Platform)
+Designed and developed the core backend architecture for an AI-powered recruitment platform using
+Python and FastAPI.
+Engineered an intelligent resume scoring engine leveraging OpenAI API and Pinecone (vector database) to
+automatically evaluate candidate skills and achievements against job blueprints.
+Built robust third-party system integrations, including bi-directional syncing with the JobAdder ATS and
+automated email outreach flows using the Microsoft Graph/Outlook API.
+Developed comprehensive document parsing pipelines capable of extracting structured data from complex
+PDFs and Word documents using tools like pdfplumber and PyMuPDF.
+Implemented secure RESTful APIs with JWT-based authentication, role-based access control, and
+comprehensive request logging.
+Managed cross-database architecture, utilizing Supabase (PostgreSQL) for structured relational data and
+MongoDB for flexible document storage.
+PROJECTS
+[Project 1 Title e.g., Scalable E-Commerce Microservices] | [Personal/Academic Project]
+Architected a robust backend ecosystem utilizing Node.js, Express, and
+React to solve [specific problem], serving a seamless user experience.
+Integrated Redis for efficient database caching, reducing data retrieval latency by [X]% and significantly
+improving API response times.
+Deployed containerized applications using Docker and established CI/CD pipelines via GitHub Actions to
+ensure rapid and reliable software releases.
+[Project 2 Title e.g., Real-Time Data Analytics Dashboard] | [Personal/Academic Project]
+Developed a real-time analytics streaming application using Python, Django,
+and WebSockets to process and visualize [specific metric].
+Employed AWS (EC2, S3) for scalable cloud hosting and secure asset storage, optimizing infrastructure
+costs.
+Designed complex SQL queries and comprehensive database indexing in MySQL, optimizing report
+generation speed by [X]%.
+SKILLS
+Languages: Python, JavaScript, TypeScript, SQL, HTML/CSS
+Frameworks & Libs:FastAPI, Django, Flask, Node.js, Express, React, Next.js
+Databases: PostgreSQL (Supabase), MongoDB, Pinecone (Vector DB), MySQL, Redis
+Cloud & DevOps: Docker, AWS (EC2, S3), Git, GitHub Actions, CI/CD, Linux, NGINX
+Tools & APIs: OpenAI API, RESTful APIs, JWT Auth, Playwright, Document Parsing (PyMuPDF,
+pdfplumber), Microsoft Graph/Outlook API
+EDUCATION
+B.Tech in Information Technology
+University Institute Of Information Technology, Shimla

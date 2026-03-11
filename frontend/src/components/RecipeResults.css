@@ -235,3 +235,78 @@
     padding: 3rem 1rem;
     color: var(--color-text-secondary);
 }
+
+/* 
+ * Editable Ingredient Styles
+ */
+.ingredient-pill.editable {
+    padding-right: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.remove-ing-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-accent-secondary);
+    font-size: 1.125rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.remove-ing-btn:hover {
+    background: rgba(255, 94, 98, 0.2);
+    opacity: 1;
+}
+
+.add-ingredient-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    max-width: 300px;
+}
+
+.ingredient-input {
+    flex-grow: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    padding: 0.5rem 1rem;
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.ingredient-input:focus {
+    border-color: var(--color-accent-secondary);
+}
+
+.add-ing-btn {
+    background: var(--color-accent-gradient);
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.add-ing-btn:hover {
+    opacity: 0.9;
+}
+
+.add-ing-btn:active {
+    transform: scale(0.95);
+}
