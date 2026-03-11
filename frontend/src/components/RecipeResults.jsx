@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, RefreshCw, ChefHat, Target, ChevronDown, ChevronUp, BookOpen, List } from 'lucide-react';
+import { Sparkles, RefreshCw, ChefHat, Target, ChevronDown, ChevronUp, BookOpen, List, AlertCircle } from 'lucide-react';
 import './RecipeResults.css';
 
 const RecipeCard = ({ recipe, itemVariants }) => {
-    const { name, score, ingredients = [], steps = [] } = recipe;
+    const { name, score, ingredients = [], steps = [], missing_ingredients = [] } = recipe;
     const [isExpanded, setIsExpanded] = useState(false);
 
     const getScoreColor = (scoreValue) => {
@@ -25,6 +25,13 @@ const RecipeCard = ({ recipe, itemVariants }) => {
                 </div>
             </div>
 
+            {missing_ingredients.length > 0 && (
+                <div className="missing-alert-inline">
+                    <AlertCircle size={14} />
+                    <span>Missing {missing_ingredients.length} item{missing_ingredients.length > 1 ? 's' : ''}</span>
+                </div>
+            )}
+
             <div className="recipe-actions">
                 <button
                     className="expand-btn"
@@ -44,10 +51,24 @@ const RecipeCard = ({ recipe, itemVariants }) => {
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
                     >
+                        {missing_ingredients.length > 0 && (
+                            <div className="detail-section missing-section">
+                                <h5 className="detail-title missing-text">
+                                    <AlertCircle size={16} />
+                                    Missing Ingredients
+                                </h5>
+                                <ul className="detail-list missing-list">
+                                    {missing_ingredients.map((ing, i) => (
+                                        <li key={i}>{ing}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
                         <div className="detail-section">
                             <h5 className="detail-title">
                                 <List size={16} />
-                                Ingredients
+                                Required Ingredients
                             </h5>
                             <ul className="detail-list ingredients">
                                 {ingredients.map((ing, i) => (

@@ -103,13 +103,25 @@ class VectorRecipeEngine:
                 if not all(f.lower() in recipe_tags for f in filters):
                     continue
             
+            # Calculate missing ingredients
+            recipe_ings = row["ingredients"]
+            available_ings = [i.lower() for i in ingredients]
+            missing = []
+            
+            for ri in recipe_ings:
+                ri_lower = ri.lower()
+                # If the required ingredient isn't covered by any available ingredient
+                if not any(ai in ri_lower or ri_lower in ai for ai in available_ings):
+                    missing.append(ri)
+
             # Return rich dict with all details
             results.append({
                 "name": row["name"],
                 "score": float(score),
-                "ingredients": row["ingredients"],
+                "ingredients": recipe_ings,
                 "steps": row["steps"],
-                "tags": row["tags"]
+                "tags": row["tags"],
+                "missing_ingredients": missing
             })
 
         return results

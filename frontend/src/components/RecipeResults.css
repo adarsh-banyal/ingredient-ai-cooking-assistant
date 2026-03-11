@@ -308,6 +308,38 @@
 }
 
 /* 
+ * Missing Ingredient Alert Styles
+ */
+.missing-alert-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    width: fit-content;
+    margin-bottom: 0.5rem;
+}
+
+.missing-section {
+    background: rgba(239, 68, 68, 0.05);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px dashed rgba(239, 68, 68, 0.3);
+}
+
+.missing-text {
+    color: #ef4444 !important;
+}
+
+.missing-list {
+    color: #f87171 !important;
+}
+
+/* 
  * Dietary Filter Styles
  */
 .filters-section {
